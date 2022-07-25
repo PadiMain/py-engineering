@@ -18,7 +18,7 @@ def step(x, step_time):
 def rand_tf_fun(input, initial_val):
     output = initial_val
     for n in range(2, len(input)):
-        output.append(0.00935 * input[n-1] + 0.008747 * input[n-2] + 1.801 * output[n-1] - 0.8187 * output[n-2])
+        output.append(0.009349989202382 * input[n-1] + 0.008746764185212 * input[n-2] + 1.800633999690388 * output[n-1] - 0.818730753077982 * output[n-2])
     return np.array(output)
 
 
