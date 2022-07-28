@@ -16,8 +16,6 @@ class Measurer:
     def signal(self):
         for t in range(int(self.time / self.fd)+1):
             sig = self.sig(t * self.fd) + self.amp_delta * math.sin(2 * math.pi * self.w_delta * t * self.fd)
-            if 300 <= t <= 400:
-                sig = 0
             yield sig
 
     def comp_output(self, input, start):
@@ -38,8 +36,16 @@ class Acc(Measurer):
 
 
 class Gps(Measurer):
-    def __init__(self, tf_num, tf_den, sig, fd=0.1, time=1, amp_delta=0.2, w_delta=5):
+    def __init__(self, tf_num, tf_den, sig, fd=0.1, time=1, amp_delta=0.2, w_delta=5, loss=[3, 4]):
         super().__init__(tf_num, tf_den, sig, fd, time, amp_delta, w_delta)
+        self.loss = loss
+
+    def signal(self):
+        for t in range(int(self.time / self.fd)+1):
+            sig = self.sig(t * self.fd) + self.amp_delta * math.sin(2 * math.pi * self.w_delta * t * self.fd)
+            if self.loss[0]/self.fd <= t <= self.loss[1]/self.fd:
+                sig = 0
+            yield sig
 
 
 def main():
@@ -83,7 +89,6 @@ def main():
     # plt.plot(numpy.arange(0, time + 2*fd, fd), numpy.array([0.5*t*t*t/6+10/2*t*t for t in numpy.arange(0, time + 2*fd, fd)]) - numpy.array(comp))
     plt.grid()
     plt.show()
-
 
 
 if __name__ == '__main__':
