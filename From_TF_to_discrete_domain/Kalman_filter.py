@@ -2,7 +2,11 @@ from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rn
+
 """Kalman filter on state-space model"""
+
+
+
 
 
 def step(time, ts, x):
@@ -16,13 +20,13 @@ def main():
     input vector = [deviation from the trim value of the elevator]
     sensor standard deviation = 4
     sensor frequency = 100 hz
-    simulation time = 200 s
+    simulation time = 100 s
     """
     A = np.array([[-0.06, -4.6, -5.25, 0, 0], [0.004, -0.63, 0.62, 0, 0], [0, 0, 0, 1, 0], [-0.0002, 0.5, -0.5, -0.53, 0], [-0.046, 72, 0, 0, 0]])
     B = np.array([[0], [0.02], [0], [-0.4], [0]])
     C = np.eye(5)
     Ts = 0.01
-    time = 200
+    time = 100
     q = 0.001
     r = 4
     R = np.array([[r, 0, 0, 0, 0], [0, r, 0, 0, 0], [0, 0, r, 0, 0], [0, 0, 0, r, 0], [0, 0, 0, 0, r]])
@@ -64,9 +68,31 @@ def main():
         x_est = np.append(x_est, (x_pred_est + np.matmul(Kalman, (np.reshape(y[:, i], (5, 1)) - np.matmul(Cd, x_pred_est)))), axis=1)
         p_est = np.append(p_est, np.array([np.matmul((np.eye(5) - np.matmul(Kalman, Cd)), p_pred_est)]), axis=0)
 
-    plt.plot(np.arange(0, time + Ts, Ts), y[4])
-    plt.plot(np.arange(0, time + Ts, Ts), x_est[4])
-    plt.plot(np.arange(0, time + Ts, Ts), y_t[4])
+
+    fig, ax = plt.subplots()
+    xdata1, ydata1 = [], []
+    ln1, = plt.plot([], [], '-')
+    xdata, ydata = [], []
+    ln, = plt.plot([], [], '-')
+    t_s = len(list(range(0, int(time/Ts) + 1)))
+
+    def init():
+        ax.set_xlim(0, time/10)
+        ax.set_ylim(min(x_est[4])-10, max(x_est[4]))
+        return ln,
+
+    def update(frame):
+        xdata1.append(frame * Ts)
+        ydata1.append(y[4][frame])
+        ln1.set_data(xdata1, ydata1)
+        xdata.append(frame*Ts)
+        ydata.append(x_est[4][frame])
+        ln.set_data(xdata, ydata)
+
+        return ln1, ln
+
+    ani = animation.FuncAnimation(fig, update, frames=t_s, init_func=init, blit=False, interval=Ts/100)
+    plt.grid()
     plt.show()
 
 
